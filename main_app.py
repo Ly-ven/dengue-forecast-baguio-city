@@ -431,11 +431,11 @@ with tab1:
 with tab2:
     st.header("Barangay Analytics")
 
-    st.subheader("Top barangay by month")
+    st.subheader("Highest-Risk barangay by month")
     if top_barangay_monthly is not None:
         st.dataframe(top_barangay_monthly, use_container_width=True)
 
-    st.subheader("Top Barangays by Dengue Cases")
+    st.subheader("Highest-Risk Barangays by Dengue Cases")
     ranking_choice = st.radio(
         "Choose ranking view",
         ["Top 3 per year", "Top 3 overall"],
@@ -721,18 +721,27 @@ The dashboard computes those automatically.
         humidity_default = get_profile_value(selected_month_num, "relative_humidity", month_profile, monthly, 0.0)
         temp_default = get_profile_value(selected_month_num, "temp_mid", month_profile, monthly, 0.0)
 
-        rain_min, rain_max = get_reasonable_range(monthly, "rainfall", 0.0, 2000.0)
+        rain_min, rain_max = 0.0, 1000.0
         rh_min, rh_max = get_reasonable_range(monthly, "relative_humidity", 60.0, 100.0)
-        temp_min, temp_max = get_reasonable_range(monthly, "temp_mid", 0.0, 300.0)
+        temp_min, temp_max = 10.0, 35.0  # realistic Baguio range
         cases_min, cases_max = get_reasonable_range(monthly, "CHSO_cases", 0.0, 3000.0)
 
         st.markdown("### Climate Inputs")
         climate_col1, climate_col2, climate_col3 = st.columns(3)
 
+        st.info("""
+        Climate inputs are based on the selected month.
+        - Temperature is in Celsius (°C)
+        - Rainfall is in millimeters (mm)
+        - Humidity is in percentage (%)
+        
+        These values should represent the conditions for the month you want to predict.
+        """)
+
         with climate_col1:
             st.markdown("**Rainfall**")
             rainfall_now = st.slider(
-                "Current Rainfall",
+                "Current Rainfall (mm)",
                 min_value=float(round(rain_min, 2)),
                 max_value=float(round(rain_max, 2)),
                 value=float(round(rainfall_default, 2)),
@@ -743,7 +752,7 @@ The dashboard computes those automatically.
         with climate_col2:
             st.markdown("**Relative Humidity**")
             humidity_now = st.slider(
-                "Current Relative Humidity",
+                "Current Relative Humidity (%)",
                 min_value=float(round(rh_min, 2)),
                 max_value=float(round(rh_max, 2)),
                 value=float(round(humidity_default, 2)),
@@ -754,12 +763,12 @@ The dashboard computes those automatically.
         with climate_col3:
             st.markdown("**Temperature**")
             temp_now = st.slider(
-                "Current Temperature",
-                min_value=float(round(temp_min, 2)),
-                max_value=float(round(temp_max, 2)),
+                "Current Temperature (°C)",
+                min_value=float(temp_min),
+                max_value=float(temp_max),
                 value=float(round(temp_default, 2)),
                 step=0.1,
-                help="Enter the average temperature for the selected month."
+                help="Enter the average temperature in Celsius (°C) for the selected month."
             )
 
         st.markdown("### Recent Dengue Case History")
